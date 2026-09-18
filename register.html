@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataLens — Create Account</title>
+    <style>
+        *{box-sizing:border-box}
+        html,body{margin:0;min-height:100%;font-family:Inter,Segoe UI,Arial,sans-serif}
+        body{min-height:100vh;background:linear-gradient(135deg,#eff6ff,#f8fafc 48%,#eef2ff);color:#0f172a;display:flex;align-items:center;justify-content:center;padding:24px}
+        body.dark{background:linear-gradient(135deg,#07111f,#0b1220 48%,#111827);color:#e5e7eb}
+        .page{width:100%;max-width:1080px;display:grid;grid-template-columns:1fr 1.05fr;gap:28px;align-items:stretch}
+        .card,.brand-panel{border-radius:28px;border:1px solid rgba(148,163,184,.22);box-shadow:0 24px 70px rgba(15,23,42,.10)}
+        .card{background:rgba(255,255,255,.97);padding:36px;display:flex;flex-direction:column;justify-content:center}.dark .card{background:rgba(15,23,42,.97);border-color:#243244;box-shadow:0 24px 70px rgba(0,0,0,.28)}
+        .brand-panel{padding:46px;background:linear-gradient(145deg,#111827,#312e81 48%,#7c3aed);color:#fff;position:relative;overflow:hidden}
+        .brand-panel:before,.brand-panel:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.09)}.brand-panel:before{width:320px;height:320px;right:-120px;top:-100px}.brand-panel:after{width:220px;height:220px;left:-100px;bottom:-90px}
+        .brand-content{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:space-between}.logo{font-size:36px;font-weight:900;letter-spacing:-1.5px}.tag{margin-top:8px;font-size:14px;opacity:.86}.hero{margin-top:90px}.hero h1{font-size:44px;line-height:1.04;margin:0 0 18px;letter-spacing:-1.7px}.hero p{font-size:17px;line-height:1.65;max-width:500px;opacity:.90}.flow{margin-top:28px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.step{padding:15px 13px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);border-radius:16px}.num{font-size:12px;font-weight:900;opacity:.7}.step b{display:block;margin-top:5px;font-size:14px}
+        .topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}.small-brand{font-weight:800;color:#2563eb}.dark .small-brand{color:#a78bfa}.theme{border:1px solid #d7dee8;background:#fff;border-radius:12px;padding:8px 11px;cursor:pointer;font-size:16px}.dark .theme{background:#111827;border-color:#334155;color:#e5e7eb}
+        h2{font-size:31px;margin:0 0 8px;letter-spacing:-.8px}.sub{margin:0 0 18px;color:#64748b;font-size:14px}.dark .sub{color:#94a3b8}
+        label{display:block;font-size:13px;font-weight:700;margin:13px 0 8px}.input{width:100%;border:1px solid #d7dee8;background:#fff;border-radius:14px;padding:13px 15px;font-size:15px;outline:none}.input:focus{border-color:#7c3aed;box-shadow:0 0 0 4px rgba(124,58,237,.12)}.dark .input{background:#0b1220;color:#e5e7eb;border-color:#334155}.dark .input:focus{border-color:#a78bfa}
+        .password-wrap{position:relative}.password-wrap .input{padding-right:74px}.show{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;cursor:pointer;color:#64748b;font-weight:700}.hint{font-size:11px;color:#94a3b8;margin-top:6px}
+        .error{margin:4px 0 14px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;padding:11px 13px;border-radius:12px;font-size:13px}.dark .error{background:#2a1518;color:#fca5a5;border-color:#4b2227}
+        .check{display:flex;gap:10px;align-items:flex-start;margin-top:17px;font-size:12px;color:#64748b;line-height:1.5}.dark .check{color:#94a3b8}.check input{margin-top:3px}.check a{color:#2563eb;text-decoration:none;font-weight:700}
+        .create-btn{margin-top:20px;width:100%;border:0;border-radius:14px;padding:15px;background:#7c3aed;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 10px 22px rgba(124,58,237,.20);transition:.2s}.create-btn:hover{background:#6d28d9;transform:translateY(-1px)}
+        .below{margin-top:18px;text-align:center;font-size:14px;color:#64748b}.dark .below{color:#94a3b8}.below a{color:#2563eb;font-weight:800;text-decoration:none}.dark .below a{color:#60a5fa}
+        @media(max-width:850px){.page{grid-template-columns:1fr}.brand-panel{display:none}.card{max-width:560px;margin:auto;padding:30px}}
+    </style>
+</head>
+<body>
+    <div class="page">
+        <section class="card">
+            <div class="topline">
+                <div class="small-brand">DATALENS</div>
+                <button class="theme" id="themeBtn" type="button">☾</button>
+            </div>
+
+            <h2>Create your account</h2>
+            <p class="sub">Register once, then login to access your DataLens dashboard.</p>
+
+            {% if error %}
+            <div class="error">{{ error }}</div>
+            {% endif %}
+
+            <form action="/register" method="POST" autocomplete="on">
+                <label for="username">Username</label>
+                <input class="input" id="username" name="username" type="text" value="{{ username|default('') }}" placeholder="Choose a username" required autocomplete="username">
+
+                <label for="email">Email</label>
+                <input class="input" id="email" name="email" type="email" value="{{ email|default('') }}" placeholder="you@example.com" required autocomplete="email">
+
+                <label for="password">Password</label>
+                <div class="password-wrap">
+                    <input class="input" id="password" name="password" type="password" placeholder="Minimum 6 characters" required autocomplete="new-password">
+                    <button class="show" type="button" onclick="togglePassword('password', this)">Show</button>
+                </div>
+
+                <label for="confirm_password">Confirm Password</label>
+                <div class="password-wrap">
+                    <input class="input" id="confirm_password" name="confirm_password" type="password" placeholder="Re-enter your password" required autocomplete="new-password">
+                    <button class="show" type="button" onclick="togglePassword('confirm_password', this)">Show</button>
+                </div>
+                <div class="hint">Username: letters, numbers, dots, underscores and hyphens.</div>
+
+                <label class="check">
+                    <input type="checkbox" required>
+                    <span>I agree to use DataLens responsibly and understand that this account is stored locally by the application.</span>
+                </label>
+
+                <button class="create-btn" type="submit">Create Account</button>
+            </form>
+
+            <div class="below">Already have an account? <a href="/login">Back to Login</a></div>
+        </section>
+
+        <section class="brand-panel">
+            <div class="brand-content">
+                <div>
+                    <div class="logo">DataLens</div>
+                    <div class="tag">One account. One dashboard. Your data insights.</div>
+                </div>
+                <div class="hero">
+                    <h1>Start with your own analytics workspace.</h1>
+                    <p>Create a personal login for your local DataLens app. Once registered, you will be sent back to the separate Login page.</p>
+                    <div class="flow">
+                        <div class="step"><span class="num">01</span><b>Create account</b></div>
+                        <div class="step"><span class="num">02</span><b>Login</b></div>
+                        <div class="step"><span class="num">03</span><b>Open dashboard</b></div>
+                    </div>
+                </div>
+                <div style="font-size:12px;opacity:.75">DataLens • Secure local sign-in flow</div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const themeBtn = document.getElementById('themeBtn');
+        const saved = localStorage.getItem('datalens-auth-theme') || 'light';
+        applyTheme(saved);
+        themeBtn.addEventListener('click', () => {
+            const next = document.body.classList.contains('dark') ? 'light' : 'dark';
+            applyTheme(next);
+        });
+        function applyTheme(theme){
+            document.body.classList.toggle('dark', theme === 'dark');
+            themeBtn.textContent = theme === 'dark' ? '☀' : '☾';
+            localStorage.setItem('datalens-auth-theme', theme);
+        }
+        function togglePassword(id, button){
+            const input = document.getElementById(id);
+            const visible = input.type === 'text';
+            input.type = visible ? 'password' : 'text';
+            button.textContent = visible ? 'Show' : 'Hide';
+        }
+    </script>
+</body>
+</html>

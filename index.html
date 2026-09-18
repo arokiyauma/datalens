@@ -1,0 +1,5104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>DataLens | Intelligent Analytics</title>
+
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<style>
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    min-height:100vh;
+
+    color:#0f172a;
+
+    overflow-x:hidden;
+
+    background:
+
+        radial-gradient(
+            circle at 10% 10%,
+            rgba(219,234,254,.95),
+            transparent 32%
+        ),
+
+        radial-gradient(
+            circle at 90% 15%,
+            rgba(207,250,254,.9),
+            transparent 30%
+        ),
+
+        linear-gradient(
+            135deg,
+            #f8faff,
+            #f1f5ff
+        );
+
+}
+
+button{
+    font:inherit;
+    cursor:pointer;
+}
+
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+
+.navbar{
+
+    height:72px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:0 34px;
+
+    position:sticky;
+
+    top:0;
+
+    z-index:100;
+
+    background:
+        rgba(255,255,255,.9);
+
+    backdrop-filter:
+        blur(18px);
+
+    border-bottom:
+        1px solid
+        rgba(226,232,240,.8);
+
+}
+
+.brand{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    font-size:23px;
+
+    font-weight:800;
+
+}
+
+.brand-logo{
+
+    width:40px;
+    height:40px;
+
+    display:grid;
+
+    place-items:center;
+
+    border-radius:13px;
+
+    color:white;
+
+    font-size:22px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #06b6d4
+        );
+
+    box-shadow:
+        0 8px 22px
+        rgba(37,99,235,.25);
+
+}
+
+.status{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:9px 15px;
+
+    border-radius:30px;
+
+    background:#ecfdf5;
+
+    color:#059669;
+
+    border:1px solid #86efac;
+
+    font-size:13px;
+
+    font-weight:700;
+
+}
+
+.status-dot{
+
+    width:8px;
+    height:8px;
+
+    border-radius:50%;
+
+    background:#10b981;
+
+    animation:pulse 1.8s infinite;
+
+}
+
+
+/* =========================================================
+   DARK / LIGHT MODE
+========================================================= */
+.theme-toggle{
+    width:42px;
+    height:42px;
+    border:1px solid rgba(148,163,184,.35);
+    border-radius:12px;
+    display:grid;
+    place-items:center;
+    background:rgba(255,255,255,.85);
+    color:#0f172a;
+    font-size:21px;
+    line-height:1;
+    transition:.25s ease;
+    box-shadow:0 6px 18px rgba(15,23,42,.08);
+}
+.theme-toggle:hover{
+    transform:translateY(-1px);
+}
+
+html[data-theme="dark"] body{
+    color:#e5e7eb;
+    background:
+        radial-gradient(circle at 10% 10%, rgba(30,64,175,.22), transparent 32%),
+        radial-gradient(circle at 90% 15%, rgba(8,145,178,.16), transparent 30%),
+        linear-gradient(135deg,#07111f,#0f172a);
+}
+html[data-theme="dark"] .navbar{
+    background:rgba(15,23,42,.90);
+    border-bottom-color:rgba(71,85,105,.45);
+}
+html[data-theme="dark"] .theme-toggle{
+    background:#1e293b;
+    color:#f8fafc;
+    border-color:#475569;
+}
+html[data-theme="dark"] .hero p,
+html[data-theme="dark"] .drop-zone p,
+html[data-theme="dark"] .dashboard-title p{
+    color:#94a3b8;
+}
+html[data-theme="dark"] .hero-badge{
+    background:#172554;
+    color:#93c5fd;
+}
+html[data-theme="dark"] .upload-card,
+html[data-theme="dark"] .kpi-card,
+html[data-theme="dark"] .chart-card{
+    background:#0f172a;
+    border-color:#334155;
+    color:#e5e7eb;
+}
+html[data-theme="dark"] .upload-card{
+    box-shadow:0 22px 70px rgba(0,0,0,.35);
+}
+html[data-theme="dark"] .drop-zone{
+    border-color:#334155;
+    background:linear-gradient(135deg,#111c30,#10232b);
+}
+html[data-theme="dark"] .drop-zone.dragging{
+    border-color:#60a5fa;
+    background:#172554;
+}
+html[data-theme="dark"] .drop-zone h2,
+html[data-theme="dark"] .kpi-card h3,
+html[data-theme="dark"] .chart-card h3{
+    color:#f8fafc;
+}
+html[data-theme="dark"] .selected-file{
+    background:#052e1b;
+    color:#86efac;
+    border-color:#166534;
+}
+html[data-theme="dark"] .loading{
+    color:#a78bfa;
+}
+html[data-theme="dark"] .status{
+    background:#052e1b;
+    color:#6ee7b7;
+    border-color:#166534;
+}
+
+@media(max-width:700px){
+    .theme-toggle{
+        width:38px;
+        height:38px;
+        font-size:19px;
+    }
+}
+
+/* =========================================================
+   LOGGED-IN USER GREETING
+========================================================= */
+
+
+
+.logout-button{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:8px 12px;
+
+    margin-left:10px;
+
+    border-radius:10px;
+
+    text-decoration:none;
+
+    color:#1d4ed8;
+
+    background:#eff6ff;
+
+    border:1px solid #bfdbfe;
+
+    font-size:12px;
+
+    font-weight:800;
+
+    transition:.2s ease;
+
+}
+
+.logout-button:hover{
+    transform:translateY(-1px);
+    background:#dbeafe;
+}
+
+html[data-theme="dark"] .logout-button{
+    color:#bfdbfe;
+    background:#172554;
+    border-color:#1e40af;
+}
+
+.user-greeting{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-left:auto;
+    margin-right:12px;
+    padding:10px 16px;
+    border:1px solid #c7d2fe;
+    border-radius:30px;
+    background:linear-gradient(135deg,#eef2ff,#ecfeff);
+    color:#1e40af;
+    font-size:13px;
+    font-weight:800;
+    white-space:nowrap;
+}
+
+.user-greeting .welcome-name{
+    color:#4338ca;
+}
+
+html[data-theme="dark"] .user-greeting{
+    background:#172554;
+    border-color:#334155;
+    color:#bfdbfe;
+}
+
+html[data-theme="dark"] .user-greeting .welcome-name{
+    color:#c4b5fd;
+}
+
+@media(max-width:700px){
+    .user-greeting{
+        font-size:11px;
+        padding:8px 10px;
+        margin-right:8px;
+    }
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero{
+
+    position:relative;
+
+    min-height:350px;
+
+    overflow:hidden;
+
+    text-align:center;
+
+    padding:58px 20px 45px;
+
+}
+
+.hero-content{
+
+    position:relative;
+
+    z-index:20;
+
+}
+
+.hero-badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:8px 15px;
+
+    border-radius:30px;
+
+    background:#dbeafe;
+
+    color:#1d4ed8;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    margin-bottom:20px;
+
+}
+
+.hero h1{
+
+    max-width:850px;
+
+    margin:auto;
+
+    font-size:
+        clamp(
+            36px,
+            5vw,
+            64px
+        );
+
+    line-height:1.05;
+
+    letter-spacing:-2.8px;
+
+    font-weight:900;
+
+}
+
+.gradient-text{
+
+    background:
+        linear-gradient(
+            90deg,
+            #2563eb,
+            #7c3aed,
+            #06b6d4
+        );
+
+    -webkit-background-clip:text;
+
+    background-clip:text;
+
+    color:transparent;
+
+}
+
+.hero p{
+
+    max-width:650px;
+
+    margin:20px auto 0;
+
+    color:#64748b;
+
+    font-size:17px;
+
+    line-height:1.7;
+
+}
+
+
+/* =========================================================
+   ONLY 5 BACKGROUND ROCKETS
+========================================================= */
+
+.background-rocket{
+
+    position:absolute;
+
+    z-index:4;
+
+    pointer-events:none;
+
+    user-select:none;
+
+    opacity:.68;
+
+    font-size:25px;
+
+    filter:
+        drop-shadow(
+            0 5px 8px
+            rgba(15,23,42,.12)
+        );
+
+}
+
+
+/* rocket 1 */
+
+.rocket-1{
+
+    left:8%;
+    top:38px;
+
+    animation:
+        smooth1
+        9s
+        ease-in-out
+        infinite;
+
+}
+
+
+/* rocket 2 */
+
+.rocket-2{
+
+    left:28%;
+    top:160px;
+
+    font-size:21px;
+
+    animation:
+        smooth2
+        11s
+        ease-in-out
+        infinite;
+
+}
+
+
+/* rocket 3 */
+
+.rocket-3{
+
+    right:10%;
+    top:55px;
+
+    font-size:27px;
+
+    animation:
+        smooth3
+        10s
+        ease-in-out
+        infinite;
+
+}
+
+
+/* rocket 4 */
+
+.rocket-4{
+
+    right:27%;
+    bottom:40px;
+
+    font-size:22px;
+
+    animation:
+        smooth4
+        12s
+        ease-in-out
+        infinite;
+
+}
+
+
+/* rocket 5 */
+
+.rocket-5{
+
+    left:58%;
+    top:95px;
+
+    font-size:21px;
+
+    animation:
+        smooth5
+        10.5s
+        ease-in-out
+        infinite;
+
+}
+
+
+/* =========================================================
+   BACKGROUND ROCKET MOVEMENTS
+========================================================= */
+
+@keyframes smooth1{
+
+    0%{
+        transform:
+            translate(0,0)
+            rotate(-8deg);
+    }
+
+    25%{
+        transform:
+            translate(35px,-18px)
+            rotate(3deg);
+    }
+
+    50%{
+        transform:
+            translate(70px,8px)
+            rotate(8deg);
+    }
+
+    75%{
+        transform:
+            translate(30px,25px)
+            rotate(-2deg);
+    }
+
+    100%{
+        transform:
+            translate(0,0)
+            rotate(-8deg);
+    }
+
+}
+
+
+@keyframes smooth2{
+
+    0%{
+        transform:
+            translate(0,0)
+            rotate(10deg);
+    }
+
+    25%{
+        transform:
+            translate(-25px,15px)
+            rotate(0deg);
+    }
+
+    50%{
+        transform:
+            translate(15px,30px)
+            rotate(-8deg);
+    }
+
+    75%{
+        transform:
+            translate(45px,5px)
+            rotate(5deg);
+    }
+
+    100%{
+        transform:
+            translate(0,0)
+            rotate(10deg);
+    }
+
+}
+
+
+@keyframes smooth3{
+
+    0%{
+        transform:
+            translate(0,0)
+            rotate(-5deg);
+    }
+
+    30%{
+        transform:
+            translate(-35px,20px)
+            rotate(6deg);
+    }
+
+    60%{
+        transform:
+            translate(-60px,-12px)
+            rotate(-4deg);
+    }
+
+    100%{
+        transform:
+            translate(0,0)
+            rotate(-5deg);
+    }
+
+}
+
+
+@keyframes smooth4{
+
+    0%{
+        transform:
+            translate(0,0)
+            rotate(8deg);
+    }
+
+    25%{
+        transform:
+            translate(30px,-15px)
+            rotate(-3deg);
+    }
+
+    50%{
+        transform:
+            translate(55px,10px)
+            rotate(5deg);
+    }
+
+    75%{
+        transform:
+            translate(25px,22px)
+            rotate(-6deg);
+    }
+
+    100%{
+        transform:
+            translate(0,0)
+            rotate(8deg);
+    }
+
+}
+
+
+@keyframes smooth5{
+
+    0%{
+        transform:
+            translate(0,0)
+            rotate(-4deg);
+    }
+
+    25%{
+        transform:
+            translate(-30px,-20px)
+            rotate(7deg);
+    }
+
+    50%{
+        transform:
+            translate(-55px,15px)
+            rotate(-5deg);
+    }
+
+    75%{
+        transform:
+            translate(-20px,25px)
+            rotate(3deg);
+    }
+
+    100%{
+        transform:
+            translate(0,0)
+            rotate(-4deg);
+    }
+
+}
+
+
+/* =========================================================
+   UPLOAD CARD
+========================================================= */
+
+.upload-card{
+
+    width:
+        min(
+            760px,
+            calc(100% - 32px)
+        );
+
+    margin:
+        0 auto 40px;
+
+    padding:30px;
+
+    border-radius:26px;
+
+    background:
+        rgba(255,255,255,.96);
+
+    box-shadow:
+        0 22px 70px
+        rgba(30,64,175,.13);
+
+    position:relative;
+
+    z-index:30;
+
+    text-align:center;
+
+}
+
+.drop-zone{
+
+    border:
+        2px dashed
+        #93c5fd;
+
+    border-radius:22px;
+
+    padding:36px 20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eff6ff,
+            #ecfeff
+        );
+
+    transition:.25s ease;
+
+}
+
+.drop-zone.dragging{
+
+    transform:scale(1.02);
+
+    border-color:#2563eb;
+
+    background:#dbeafe;
+
+}
+
+.upload-icon{
+
+    width:72px;
+
+    height:72px;
+
+    display:grid;
+
+    place-items:center;
+
+    margin:0 auto 15px;
+
+    border-radius:22px;
+
+    color:white;
+
+    font-size:35px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #06b6d4
+        );
+
+}
+
+.drop-zone h2{
+
+    font-size:22px;
+
+    margin-bottom:8px;
+
+}
+
+.drop-zone p{
+
+    color:#64748b;
+
+    font-size:14px;
+
+    margin-bottom:18px;
+
+}
+
+.file-button{
+
+    display:inline-block;
+
+    padding:12px 20px;
+
+    border-radius:12px;
+
+    color:white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #4f46e5
+        );
+
+    font-weight:800;
+
+}
+
+#fileInput{
+    display:none;
+}
+
+.selected-file{
+
+    display:none;
+
+    margin-top:16px;
+
+    padding:12px;
+
+    border-radius:12px;
+
+    background:#f0fdf4;
+
+    color:#047857;
+
+    border:1px solid #bbf7d0;
+
+    font-size:14px;
+
+    font-weight:700;
+
+}
+
+.generate-button{
+
+    width:100%;
+
+    margin-top:18px;
+
+    padding:14px 20px;
+
+    border:none;
+
+    border-radius:13px;
+
+    color:white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7c3aed,
+            #2563eb
+        );
+
+    font-weight:800;
+
+    box-shadow:
+        0 12px 25px
+        rgba(124,58,237,.25);
+
+    transition:.2s ease;
+
+}
+
+.generate-button:hover:not(:disabled){
+
+    transform:translateY(-2px);
+
+}
+
+.generate-button:disabled{
+
+    opacity:.45;
+
+    cursor:not-allowed;
+
+}
+
+.loading{
+
+    display:none;
+
+    margin-top:15px;
+
+    color:#4f46e5;
+
+    font-size:14px;
+
+    font-weight:700;
+
+}
+
+
+/* =========================================================
+   🚀 LAUNCH AREA
+========================================================= */
+
+/*
+    IMPORTANT:
+
+    The launch rocket is completely hidden initially.
+
+    It will ONLY become visible when the user clicks
+    Generate Dashboard.
+*/
+
+.launch-system{
+
+    position:fixed;
+
+    left:0;
+    right:0;
+    bottom:0;
+
+    height:260px;
+
+    z-index:9990;
+
+    pointer-events:none;
+
+    display:none;
+
+    overflow:visible;
+
+}
+
+
+/* =========================================================
+   DARK LAUNCH SMOKE BACKGROUND
+========================================================= */
+
+.launch-smoke-background{
+
+    position:absolute;
+
+    left:50%;
+
+    bottom:-120px;
+
+    width:520px;
+
+    height:300px;
+
+    transform:
+        translateX(-50%)
+        scale(.35);
+
+    opacity:0;
+
+    border-radius:50%;
+
+    background:
+
+        radial-gradient(
+            ellipse at center,
+            rgba(15,23,42,.95) 0%,
+            rgba(30,41,59,.82) 20%,
+            rgba(51,65,85,.58) 42%,
+            rgba(71,85,105,.30) 62%,
+            transparent 78%
+        );
+
+    filter:
+        blur(15px);
+
+}
+
+
+/*
+    When launch starts the smoke expands.
+*/
+
+.launch-system.active
+.launch-smoke-background{
+
+    animation:
+        darkSmoke
+        2.8s
+        ease-out
+        forwards;
+
+}
+
+
+@keyframes darkSmoke{
+
+    0%{
+
+        opacity:0;
+
+        transform:
+            translateX(-50%)
+            scale(.25);
+
+    }
+
+    15%{
+
+        opacity:.9;
+
+        transform:
+            translateX(-50%)
+            scale(.65);
+
+    }
+
+    45%{
+
+        opacity:1;
+
+        transform:
+            translateX(-50%)
+            scale(1);
+
+    }
+
+    75%{
+
+        opacity:.8;
+
+        transform:
+            translateX(-50%)
+            scale(1.25);
+
+    }
+
+    100%{
+
+        opacity:0;
+
+        transform:
+            translateX(-50%)
+            scale(1.7);
+
+    }
+
+}
+
+
+/* =========================================================
+   SMOKE CLOUDS
+========================================================= */
+
+.launch-cloud{
+
+    position:absolute;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(30,41,59,.8),
+            rgba(71,85,105,.45),
+            transparent
+        );
+
+    filter:blur(8px);
+
+    opacity:0;
+
+}
+
+
+/* individual clouds */
+
+.cloud1{
+
+    width:130px;
+    height:80px;
+
+    left:calc(50% - 150px);
+    bottom:15px;
+
+}
+
+.cloud2{
+
+    width:180px;
+    height:100px;
+
+    left:calc(50% - 70px);
+    bottom:0;
+
+}
+
+.cloud3{
+
+    width:120px;
+    height:80px;
+
+    left:calc(50% + 55px);
+    bottom:25px;
+
+}
+
+.cloud4{
+
+    width:150px;
+    height:90px;
+
+    left:calc(50% - 100px);
+    bottom:65px;
+
+}
+
+
+/*
+    Animate clouds
+*/
+
+.launch-system.active
+.cloud1{
+
+    animation:
+        cloudMove1
+        2.6s
+        ease-out
+        forwards;
+
+}
+
+.launch-system.active
+.cloud2{
+
+    animation:
+        cloudMove2
+        2.6s
+        ease-out
+        forwards;
+
+}
+
+.launch-system.active
+.cloud3{
+
+    animation:
+        cloudMove3
+        2.6s
+        ease-out
+        forwards;
+
+}
+
+.launch-system.active
+.cloud4{
+
+    animation:
+        cloudMove4
+        2.6s
+        ease-out
+        forwards;
+
+}
+
+
+@keyframes cloudMove1{
+
+    0%{
+        opacity:0;
+        transform:scale(.4);
+    }
+
+    20%{
+        opacity:.8;
+    }
+
+    70%{
+        opacity:.65;
+        transform:
+            translate(-40px,-45px)
+            scale(1.3);
+    }
+
+    100%{
+        opacity:0;
+        transform:
+            translate(-90px,-90px)
+            scale(1.7);
+    }
+
+}
+
+
+@keyframes cloudMove2{
+
+    0%{
+        opacity:0;
+        transform:scale(.35);
+    }
+
+    20%{
+        opacity:.9;
+    }
+
+    70%{
+        opacity:.7;
+        transform:
+            translate(10px,-55px)
+            scale(1.35);
+    }
+
+    100%{
+        opacity:0;
+        transform:
+            translate(25px,-120px)
+            scale(1.8);
+    }
+
+}
+
+
+@keyframes cloudMove3{
+
+    0%{
+        opacity:0;
+        transform:scale(.4);
+    }
+
+    20%{
+        opacity:.8;
+    }
+
+    70%{
+        opacity:.65;
+        transform:
+            translate(50px,-40px)
+            scale(1.3);
+    }
+
+    100%{
+        opacity:0;
+        transform:
+            translate(100px,-90px)
+            scale(1.7);
+    }
+
+}
+
+
+@keyframes cloudMove4{
+
+    0%{
+        opacity:0;
+        transform:scale(.4);
+    }
+
+    20%{
+        opacity:.9;
+    }
+
+    70%{
+        opacity:.65;
+        transform:
+            translate(-10px,-90px)
+            scale(1.4);
+    }
+
+    100%{
+        opacity:0;
+        transform:
+            translate(-30px,-150px)
+            scale(1.9);
+    }
+
+}
+
+
+/* =========================================================
+   FIRE GLOW
+========================================================= */
+
+.launch-fire-glow{
+
+    position:absolute;
+
+    left:50%;
+
+    bottom:18px;
+
+    width:150px;
+
+    height:110px;
+
+    transform:
+        translateX(-50%)
+        scale(.4);
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(251,146,60,.9),
+            rgba(249,115,22,.6),
+            rgba(239,68,68,.2),
+            transparent 70%
+        );
+
+    filter:blur(10px);
+
+    opacity:0;
+
+}
+
+
+.launch-system.active
+.launch-fire-glow{
+
+    animation:
+        fireGlow
+        2.4s
+        ease-out
+        forwards;
+
+}
+
+
+@keyframes fireGlow{
+
+    0%{
+
+        opacity:0;
+
+        transform:
+            translateX(-50%)
+            scale(.3);
+
+    }
+
+    15%{
+
+        opacity:1;
+
+        transform:
+            translateX(-50%)
+            scale(1);
+
+    }
+
+    40%{
+
+        opacity:1;
+
+        transform:
+            translateX(-50%)
+            scale(1.25);
+
+    }
+
+    70%{
+
+        opacity:.8;
+
+    }
+
+    100%{
+
+        opacity:0;
+
+        transform:
+            translateX(-50%)
+            scale(1.6);
+
+    }
+
+}
+
+
+/* =========================================================
+   LAUNCH ROCKET
+========================================================= */
+
+.launch-rocket{
+
+    position:absolute;
+
+    left:50%;
+
+    bottom:15px;
+
+    transform:
+        translateX(-50%);
+
+    font-size:68px;
+
+    line-height:1;
+
+    opacity:0;
+
+    filter:
+        drop-shadow(
+            0 8px 14px
+            rgba(15,23,42,.35)
+        );
+
+}
+
+
+/*
+    Rocket first appears at bottom center.
+*/
+
+.launch-system.active
+.launch-rocket{
+
+    animation:
+        straightLaunch
+        2.5s
+        cubic-bezier(
+            .25,
+            .8,
+            .25,
+            1
+        )
+        forwards;
+
+}
+
+
+/* =========================================================
+   ROCKET FLAME
+========================================================= */
+
+.rocket-flame{
+
+    position:absolute;
+
+    left:50%;
+
+    bottom:-55px;
+
+    width:32px;
+
+    height:60px;
+
+    transform:
+        translateX(-50%);
+
+    border-radius:
+        50% 50% 65% 65%;
+
+    background:
+
+        linear-gradient(
+            to bottom,
+            #fef08a 0%,
+            #fb923c 30%,
+            #f97316 55%,
+            #ef4444 75%,
+            transparent 100%
+        );
+
+    filter:blur(2px);
+
+    opacity:0;
+
+}
+
+
+.launch-system.active
+.rocket-flame{
+
+    animation:
+        flame
+        .15s
+        ease-in-out
+        infinite
+        alternate;
+
+}
+
+
+@keyframes flame{
+
+    from{
+
+        opacity:.75;
+
+        height:45px;
+
+        transform:
+            translateX(-50%)
+            scaleX(.8);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        height:70px;
+
+        transform:
+            translateX(-50%)
+            scaleX(1.15);
+
+    }
+
+}
+
+
+/* =========================================================
+   STRAIGHT ROCKET LAUNCH
+========================================================= */
+
+@keyframes straightLaunch{
+
+    0%{
+
+        opacity:1;
+
+        left:50%;
+
+        bottom:15px;
+
+        transform:
+            translateX(-50%)
+            scale(.95);
+
+    }
+
+    12%{
+
+        opacity:1;
+
+        left:50%;
+
+        bottom:18px;
+
+        transform:
+            translateX(-50%)
+            scale(1);
+
+    }
+
+    35%{
+
+        opacity:1;
+
+        left:50%;
+
+        bottom:28%;
+
+        transform:
+            translateX(-50%)
+            scale(1.04);
+
+    }
+
+    60%{
+
+        opacity:1;
+
+        left:50%;
+
+        bottom:58%;
+
+        transform:
+            translateX(-50%)
+            scale(1.05);
+
+    }
+
+    82%{
+
+        opacity:1;
+
+        left:50%;
+
+        bottom:82%;
+
+        transform:
+            translateX(-50%)
+            scale(.95);
+
+    }
+
+    100%{
+
+        opacity:0;
+
+        left:50%;
+
+        bottom:125%;
+
+        transform:
+            translateX(-50%)
+            scale(.65);
+
+    }
+
+}
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+.dashboard{
+
+    display:none;
+
+    max-width:1450px;
+
+    margin:auto;
+
+    padding:18px 20px 30px;
+
+}
+
+.dashboard-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:15px;
+
+    margin-bottom:16px;
+
+}
+
+.dashboard-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+.dashboard-title-icon{
+
+    width:43px;
+    height:43px;
+
+    display:grid;
+
+    place-items:center;
+
+    border-radius:13px;
+
+    color:white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #06b6d4
+        );
+
+}
+
+.dashboard-title h2{
+    font-size:23px;
+}
+
+.dashboard-title p{
+
+    color:#64748b;
+
+    font-size:12px;
+
+    margin-top:4px;
+
+}
+
+.header-actions{
+
+    display:flex;
+
+    gap:10px;
+
+}
+
+.small-button{
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    background:white;
+
+    color:#334155;
+
+    border-radius:12px;
+
+    padding:11px 16px;
+
+    font-size:12px;
+
+    font-weight:800;
+
+}
+
+
+/* =========================================================
+   KPI
+========================================================= */
+
+.kpi-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            8,
+            minmax(0,1fr)
+        );
+
+    gap:10px;
+
+    margin-bottom:12px;
+
+}
+
+.kpi-card{
+
+    background:white;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:17px;
+
+    padding:14px;
+
+    box-shadow:
+        0 8px 22px
+        rgba(15,23,42,.035);
+
+    animation:
+        cardRise
+        .45s
+        ease
+        both;
+
+}
+
+.kpi-icon{
+
+    width:28px;
+    height:28px;
+
+    display:grid;
+
+    place-items:center;
+
+    border-radius:9px;
+
+    margin-bottom:10px;
+
+}
+
+.kpi-label{
+
+    color:#64748b;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    text-transform:uppercase;
+
+}
+
+.kpi-value{
+
+    margin-top:5px;
+
+    font-size:19px;
+
+    font-weight:900;
+
+    overflow-wrap:anywhere;
+
+}
+
+
+/* =========================================================
+   CHARTS
+========================================================= */
+
+.charts-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            minmax(0,1fr)
+        );
+
+    gap:12px;
+
+}
+
+.chart-card{
+
+    min-width:0;
+
+    background:white;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:19px;
+
+    padding:10px;
+
+    min-height:235px;
+
+    animation:
+        cardRise
+        .5s
+        ease
+        both;
+
+}
+
+.chart-card h3{
+
+    padding:3px 8px 0;
+
+    font-size:12px;
+
+    color:#334155;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+}
+
+.chart-type{
+
+    float:right;
+
+    color:#6366f1;
+
+    background:#eef2ff;
+
+    padding:4px 7px;
+
+    border-radius:20px;
+
+    font-size:9px;
+
+    font-weight:800;
+
+}
+
+.chart{
+
+    width:100%;
+
+    height:190px;
+
+}
+
+
+/* =========================================================
+   PREVIEW
+========================================================= */
+
+.preview-section{
+
+    margin-top:15px;
+
+    background:white;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:19px;
+
+    padding:18px;
+
+    overflow:hidden;
+
+}
+
+.preview-section h3{
+
+    font-size:16px;
+
+    margin-bottom:12px;
+
+}
+
+.table-wrapper{
+
+    overflow-x:auto;
+
+    max-height:280px;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    font-size:12px;
+
+}
+
+th{
+
+    background:#eff6ff;
+
+    color:#1e40af;
+
+    text-align:left;
+
+    padding:10px;
+
+    white-space:nowrap;
+
+}
+
+td{
+
+    padding:9px 10px;
+
+    border-bottom:
+        1px solid
+        #f1f5f9;
+
+    white-space:nowrap;
+
+}
+
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+.confetti{
+
+    position:fixed;
+
+    top:-20px;
+
+    width:9px;
+
+    height:15px;
+
+    z-index:20000;
+
+    pointer-events:none;
+
+    animation:
+        confettiFall
+        2.6s
+        linear
+        forwards;
+
+}
+
+@keyframes confettiFall{
+
+    to{
+
+        transform:
+            translateY(110vh)
+            rotate(720deg);
+
+        opacity:0;
+
+    }
+
+}
+
+
+/* =========================================================
+   PULSE
+========================================================= */
+
+@keyframes pulse{
+
+    0%,
+    100%{
+
+        opacity:1;
+
+        transform:scale(1);
+
+    }
+
+    50%{
+
+        opacity:.45;
+
+        transform:scale(.8);
+
+    }
+
+}
+
+
+/* =========================================================
+   CARD RISE
+========================================================= */
+
+@keyframes cardRise{
+
+    from{
+
+        opacity:0;
+
+        transform:
+            translateY(12px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+            translateY(0);
+
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1250px){
+
+    .kpi-grid{
+
+        grid-template-columns:
+            repeat(
+                4,
+                minmax(0,1fr)
+            );
+
+    }
+
+    .charts-grid{
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+
+    }
+
+}
+
+
+@media(max-width:700px){
+
+    .navbar{
+
+        padding:0 16px;
+
+    }
+
+    .status{
+
+        font-size:10px;
+
+        padding:7px 10px;
+
+    }
+
+    .hero{
+
+        min-height:330px;
+
+        padding:45px 18px 35px;
+
+    }
+
+    .hero h1{
+
+        font-size:38px;
+
+        letter-spacing:-1.8px;
+
+    }
+
+    .hero p{
+
+        font-size:14px;
+
+    }
+
+    .background-rocket{
+
+        font-size:18px;
+
+    }
+
+    .upload-card{
+
+        padding:18px;
+
+    }
+
+    .dashboard{
+
+        padding:
+            12px
+            12px
+            25px;
+
+    }
+
+    .dashboard-header{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+    }
+
+    .kpi-grid{
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+
+    }
+
+    .charts-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .launch-smoke-background{
+
+        width:350px;
+
+    }
+
+    .launch-rocket{
+
+        font-size:54px;
+
+    }
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast{
+
+    display:none;
+
+    position:fixed;
+
+    right:22px;
+
+    bottom:22px;
+
+    z-index:30000;
+
+    padding:15px 18px;
+
+    color:white;
+
+    background:#0f172a;
+
+    border-radius:13px;
+
+    box-shadow:
+        0 12px 35px
+        rgba(15,23,42,.25);
+
+    font-size:14px;
+
+    font-weight:700;
+
+}
+
+
+
+/* =========================================================
+   SAVED DASHBOARD ACTIONS
+========================================================= */
+
+.header-actions{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    gap:8px;
+}
+
+.dashboard-action-button{
+    border:1px solid #cbd5e1;
+    background:#ffffff;
+    color:#1e293b;
+    border-radius:11px;
+    padding:10px 13px;
+    font-size:12px;
+    font-weight:800;
+    transition:.2s ease;
+    box-shadow:0 4px 12px rgba(15,23,42,.05);
+}
+
+.dashboard-action-button:hover{
+    transform:translateY(-1px);
+    border-color:#93c5fd;
+    box-shadow:0 8px 18px rgba(37,99,235,.10);
+}
+
+.dashboard-action-button.primary{
+    border:none;
+    color:white;
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+}
+
+.dashboard-action-button.share{
+    border:none;
+    color:white;
+    background:linear-gradient(135deg,#06b6d4,#2563eb);
+}
+
+.auto-save-status{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    margin-left:8px;
+    color:#059669;
+    font-size:12px;
+    font-weight:800;
+}
+
+.auto-save-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#10b981;
+    box-shadow:0 0 0 4px rgba(16,185,129,.10);
+}
+
+.modal-backdrop{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:50000;
+    background:rgba(15,23,42,.52);
+    backdrop-filter:blur(8px);
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+}
+
+.modal-backdrop.open{
+    display:flex;
+}
+
+.dashboard-modal{
+    width:min(720px,100%);
+    max-height:85vh;
+    overflow:auto;
+    background:#ffffff;
+    border-radius:22px;
+    border:1px solid #dbeafe;
+    box-shadow:0 28px 80px rgba(15,23,42,.28);
+    padding:22px;
+}
+
+.dashboard-modal h3{
+    margin:0;
+    font-size:22px;
+}
+
+.dashboard-modal-subtitle{
+    color:#64748b;
+    font-size:13px;
+    margin-top:5px;
+}
+
+.saved-list{
+    display:grid;
+    gap:10px;
+    margin-top:18px;
+}
+
+.saved-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:13px;
+    border:1px solid #e2e8f0;
+    border-radius:14px;
+    background:#f8fafc;
+}
+
+.saved-item-main{
+    min-width:0;
+}
+
+.saved-item-name{
+    font-weight:800;
+    color:#0f172a;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.saved-item-meta{
+    color:#64748b;
+    font-size:11px;
+    margin-top:3px;
+}
+
+.saved-item-actions{
+    display:flex;
+    gap:6px;
+    flex-shrink:0;
+}
+
+.saved-mini-button{
+    border:1px solid #cbd5e1;
+    background:white;
+    border-radius:9px;
+    padding:8px 10px;
+    font-size:11px;
+    font-weight:800;
+    cursor:pointer;
+}
+
+.saved-mini-button.delete{
+    color:#b91c1c;
+}
+
+.share-box{
+    margin-top:16px;
+    padding:14px;
+    border-radius:14px;
+    background:#eff6ff;
+    border:1px solid #bfdbfe;
+}
+
+.share-url{
+    width:100%;
+    padding:11px;
+    border:1px solid #cbd5e1;
+    border-radius:10px;
+    margin-top:8px;
+    font-size:12px;
+    background:#fff;
+}
+
+.modal-footer{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    margin-top:16px;
+}
+
+html[data-theme="dark"] .dashboard-action-button{
+    background:#0f172a;
+    color:#e5e7eb;
+    border-color:#334155;
+}
+
+html[data-theme="dark"] .dashboard-action-button.primary,
+html[data-theme="dark"] .dashboard-action-button.share{
+    color:white;
+    border:none;
+}
+
+html[data-theme="dark"] .dashboard-modal{
+    background:#0f172a;
+    border-color:#334155;
+}
+
+html[data-theme="dark"] .dashboard-modal h3,
+html[data-theme="dark"] .saved-item-name{
+    color:#f8fafc;
+}
+
+html[data-theme="dark"] .saved-item{
+    background:#111827;
+    border-color:#334155;
+}
+
+html[data-theme="dark"] .saved-mini-button{
+    background:#0f172a;
+    color:#e5e7eb;
+    border-color:#334155;
+}
+
+html[data-theme="dark"] .share-box{
+    background:#172554;
+    border-color:#1d4ed8;
+}
+
+html[data-theme="dark"] .share-url{
+    background:#0f172a;
+    color:#e5e7eb;
+    border-color:#334155;
+}
+
+@media(max-width:700px){
+    .header-actions{
+        width:100%;
+        justify-content:flex-start;
+    }
+    .dashboard-action-button{
+        flex:1 1 calc(50% - 8px);
+    }
+    .auto-save-status{
+        margin-left:0;
+        width:100%;
+    }
+    .saved-item{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+}
+
+
+/* =========================================================
+   ALL-IN-ONE ANALYTICS FEATURES
+========================================================= */
+.smart-filter-shell{
+    margin-bottom:18px;
+    padding:16px;
+    border:1px solid #dbeafe;
+    border-radius:20px;
+    background:rgba(255,255,255,.82);
+    box-shadow:0 10px 28px rgba(30,64,175,.07);
+}
+.smart-filter-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:12px;
+}
+.smart-filter-title{
+    font-size:15px;
+    font-weight:900;
+    color:#0f172a;
+}
+.smart-filter-subtitle{
+    color:#64748b;
+    font-size:12px;
+    margin-top:3px;
+}
+.smart-filters-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:10px;
+}
+.smart-filter-group{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+.smart-filter-group label{
+    font-size:11px;
+    color:#64748b;
+    font-weight:800;
+}
+.smart-filter-group select,
+.smart-filter-group input{
+    width:100%;
+    padding:10px 11px;
+    border:1px solid #cbd5e1;
+    border-radius:10px;
+    background:#fff;
+    color:#0f172a;
+    font:inherit;
+    font-size:12px;
+    font-weight:700;
+    outline:none;
+}
+.smart-filter-group select:focus,
+.smart-filter-group input:focus{
+    border-color:#60a5fa;
+    box-shadow:0 0 0 3px rgba(37,99,235,.10);
+}
+.smart-range-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+}
+.filter-reset-button{
+    border:1px solid #cbd5e1;
+    background:#fff;
+    color:#334155;
+    border-radius:10px;
+    padding:9px 12px;
+    font-size:11px;
+    font-weight:800;
+}
+.filter-count{
+    margin-top:10px;
+    font-size:11px;
+    color:#64748b;
+    font-weight:700;
+}
+
+.insights-section{
+    margin-bottom:18px;
+    padding:18px;
+    border-radius:20px;
+    background:linear-gradient(135deg,#eef6ff,#f5f3ff);
+    border:1px solid #dbeafe;
+    box-shadow:0 10px 28px rgba(30,64,175,.06);
+}
+.insights-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:12px;
+}
+.insights-title{
+    font-size:16px;
+    font-weight:900;
+}
+.insights-badge{
+    padding:5px 9px;
+    border-radius:999px;
+    background:#e0e7ff;
+    color:#4338ca;
+    font-size:10px;
+    font-weight:900;
+}
+.insights-list{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:9px;
+}
+.insight-item{
+    padding:11px 12px;
+    border-radius:13px;
+    background:rgba(255,255,255,.80);
+    border:1px solid rgba(191,219,254,.9);
+    color:#334155;
+    font-size:12px;
+    line-height:1.55;
+    font-weight:650;
+}
+
+.chart-card{
+    transition:transform .18s ease, box-shadow .18s ease;
+}
+.chart-card:hover{
+    transform:translateY(-2px);
+}
+.chart-drill-button{
+    float:right;
+    border:1px solid #cbd5e1;
+    background:#fff;
+    color:#475569;
+    border-radius:8px;
+    padding:4px 7px;
+    font-size:10px;
+    font-weight:800;
+}
+
+/* Custom layout modes */
+.dashboard.layout-compact .charts-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px;
+}
+.dashboard.layout-compact .chart-card{padding:12px}
+.dashboard.layout-compact .chart{height:245px}
+.dashboard.layout-wide .charts-grid{
+    grid-template-columns:1fr;
+    gap:16px;
+}
+.dashboard.layout-wide .chart{height:360px}
+.dashboard.layout-focus .charts-grid{
+    grid-template-columns:1fr;
+    gap:18px;
+}
+.dashboard.layout-focus .chart{height:420px}
+
+.layout-selector{
+    border:1px solid #cbd5e1;
+    background:#fff;
+    color:#1e293b;
+    border-radius:11px;
+    padding:10px 11px;
+    font-size:12px;
+    font-weight:800;
+    cursor:pointer;
+}
+
+.drilldown-modal-chart{
+    height:430px;
+    margin-top:12px;
+}
+.drilldown-details{
+    padding:12px;
+    border-radius:12px;
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    font-size:12px;
+    color:#334155;
+    line-height:1.6;
+}
+
+html[data-theme="dark"] .smart-filter-shell,
+html[data-theme="dark"] .insights-section{
+    background:#111827;
+    border-color:#334155;
+}
+html[data-theme="dark"] .smart-filter-title,
+html[data-theme="dark"] .insights-title{
+    color:#f8fafc;
+}
+html[data-theme="dark"] .smart-filter-group select,
+html[data-theme="dark"] .smart-filter-group input,
+html[data-theme="dark"] .filter-reset-button,
+html[data-theme="dark"] .layout-selector,
+html[data-theme="dark"] .chart-drill-button{
+    background:#0f172a;
+    color:#e5e7eb;
+    border-color:#334155;
+}
+html[data-theme="dark"] .insight-item,
+html[data-theme="dark"] .drilldown-details{
+    background:#0f172a;
+    color:#cbd5e1;
+    border-color:#334155;
+}
+html[data-theme="dark"] .insights-badge{
+    background:#312e81;
+    color:#c7d2fe;
+}
+
+@media(max-width:1250px){
+    .dashboard.layout-compact .charts-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:700px){
+    .smart-filter-top{align-items:flex-start;flex-direction:column}
+    .dashboard.layout-compact .charts-grid{grid-template-columns:1fr}
+    .drilldown-modal-chart{height:300px}
+}
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =======================================================
+     NAVBAR
+======================================================= -->
+
+<nav class="navbar">
+
+    <div class="brand">
+
+        <div class="brand-logo">
+            ⌁
+        </div>
+
+        <span>
+            DataLens
+        </span>
+
+    </div>
+
+
+    <div class="user-greeting" id="userGreeting" aria-live="polite" style="display:none;">
+
+        <span>Welcome,</span>
+
+        <span class="welcome-name" id="welcomeName">User</span>
+
+        <a class="logout-button" href="/logout">Logout</a>
+
+    </div>
+
+
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode">☾</button>
+
+    <div class="status">
+
+        <span class="status-dot"></span>
+
+        Analytics Engine Ready
+
+    </div>
+
+</nav>
+
+
+
+<!-- =======================================================
+     HERO
+======================================================= -->
+
+<section
+    class="hero"
+    id="homeSection"
+>
+
+
+    <!-- ONLY FIVE BACKGROUND ROCKETS -->
+
+    <div class="background-rocket rocket-1">
+        🚀
+    </div>
+
+    <div class="background-rocket rocket-2">
+        🚀
+    </div>
+
+    <div class="background-rocket rocket-3">
+        🚀
+    </div>
+
+    <div class="background-rocket rocket-4">
+        🚀
+    </div>
+
+    <div class="background-rocket rocket-5">
+        🚀
+    </div>
+
+
+    <div class="hero-content">
+
+
+        <div class="hero-badge">
+
+            ✦ AI-Powered Data Analytics
+
+        </div>
+
+
+        <h1>
+
+            Turn Your Data Into
+
+            <span class="gradient-text">
+
+                Interactive Insights
+
+            </span>
+
+        </h1>
+
+
+        <p>
+
+            Upload your CSV or Excel dataset and
+            automatically generate professional KPIs,
+            charts, trends, relationships and
+            data-quality insights.
+
+        </p>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- =======================================================
+     UPLOAD CARD
+======================================================= -->
+
+<section
+    class="upload-card"
+    id="uploadSection"
+>
+
+
+    <div
+        class="drop-zone"
+        id="dropZone"
+    >
+
+
+        <div class="upload-icon">
+            📊
+        </div>
+
+
+        <h2>
+            Upload Your Dataset
+        </h2>
+
+
+        <p>
+
+            Drag and drop your CSV or Excel file here,
+            or choose a file from your computer.
+
+        </p>
+
+
+        <label
+            class="file-button"
+            for="fileInput"
+        >
+
+            Choose Dataset
+
+        </label>
+
+
+        <input
+            type="file"
+            id="fileInput"
+            accept=".csv,.xlsx,.xls"
+        >
+
+
+        <div
+            class="selected-file"
+            id="selectedFile"
+        ></div>
+
+
+    </div>
+
+
+    <button
+        class="generate-button"
+        id="generateButton"
+        disabled
+    >
+
+        🚀 Generate Interactive Dashboard
+
+    </button>
+
+
+    <div
+        class="loading"
+        id="loading"
+    >
+
+        Analyzing your dataset...
+        Preparing intelligent insights...
+
+    </div>
+
+</section>
+
+
+
+<!-- =======================================================
+     🚀 LAUNCH SYSTEM
+
+     THIS ENTIRE SECTION IS HIDDEN INITIALLY.
+
+     It appears ONLY AFTER Generate Dashboard is clicked.
+======================================================= -->
+
+<div
+    class="launch-system"
+    id="launchSystem"
+>
+
+
+    <!-- Large dark smoke -->
+
+    <div
+        class="launch-smoke-background"
+    ></div>
+
+
+    <!-- Smoke clouds -->
+
+    <div
+        class="launch-cloud cloud1"
+    ></div>
+
+    <div
+        class="launch-cloud cloud2"
+    ></div>
+
+    <div
+        class="launch-cloud cloud3"
+    ></div>
+
+    <div
+        class="launch-cloud cloud4"
+    ></div>
+
+
+    <!-- Fire glow -->
+
+    <div
+        class="launch-fire-glow"
+    ></div>
+
+
+    <!-- Rocket -->
+
+    <div
+        class="launch-rocket"
+        id="launchRocket"
+    >
+
+        🚀
+
+        <div
+            class="rocket-flame"
+        ></div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =======================================================
+     DASHBOARD
+======================================================= -->
+
+<section
+    class="dashboard"
+    id="dashboardSection"
+>
+
+
+    <div class="dashboard-header">
+
+
+        <div class="dashboard-title">
+
+
+            <div class="dashboard-title-icon">
+                ⌁
+            </div>
+
+
+            <div>
+
+                <h2>
+                    Analytics Dashboard
+                </h2>
+
+                <p id="datasetInfo">
+                    Dataset information
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="header-actions">
+
+            <button class="small-button" id="previewButton">
+                👁 Data Preview
+            </button>
+
+            <button class="dashboard-action-button primary" id="saveDashboardButton">
+                💾 Save
+            </button>
+
+            <button class="dashboard-action-button" id="downloadDashboardButton">
+                ⬇ Download
+            </button>
+
+            <button class="dashboard-action-button share" id="shareDashboardButton">
+                🔗 Share
+            </button>
+
+            <button class="dashboard-action-button" id="myDashboardsButton">
+                📁 My Dashboards
+            </button>
+
+            <button class="dashboard-action-button" id="pdfDashboardButton">
+                📄 PDF
+            </button>
+
+            <select class="layout-selector" id="layoutSelector" aria-label="Dashboard layout">
+                <option value="standard">Layout: Standard</option>
+                <option value="compact">Layout: Compact</option>
+                <option value="wide">Layout: Wide</option>
+                <option value="focus">Layout: Focus</option>
+            </select>
+
+            <button class="small-button" id="newDatasetButton">
+                ↻ New Dataset
+            </button>
+
+            <span class="auto-save-status" id="autoSaveStatus" style="display:none;">
+                <span class="auto-save-dot"></span>
+                <span class="auto-save-label">Auto-saved</span>
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="smart-filter-shell" id="smartFilterShell">
+        <div class="smart-filter-top">
+            <div>
+                <div class="smart-filter-title">Smart Filters</div>
+                <div class="smart-filter-subtitle">Filter your dashboard by the detected dimensions and numeric ranges.</div>
+            </div>
+            <button class="filter-reset-button" id="resetSmartFilters" type="button">Reset Filters</button>
+        </div>
+        <div class="smart-filters-grid" id="smartFiltersGrid"></div>
+        <div class="filter-count" id="filterCount"></div>
+    </div>
+
+
+    <div class="insights-section" id="insightsSection">
+        <div class="insights-header">
+            <div class="insights-title">AI Insights</div>
+            <div class="insights-badge">DataLens Intelligence</div>
+        </div>
+        <div class="insights-list" id="insightsList"></div>
+    </div>
+
+
+    <div
+        class="kpi-grid"
+        id="kpiGrid"
+    ></div>
+
+
+    <div
+        class="charts-grid"
+        id="chartsGrid"
+    ></div>
+
+
+    <div
+        class="preview-section"
+        id="previewSection"
+    >
+
+
+        <h3>
+            📋 Data Preview
+        </h3>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead id="tableHead"></thead>
+
+                <tbody id="tableBody"></tbody>
+
+            </table>
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+
+<!-- =======================================================
+     TOAST
+======================================================= -->
+
+<div
+    class="toast"
+    id="toast"
+></div>
+
+
+<!-- =======================================================
+     SAVED DASHBOARDS MODAL
+======================================================= -->
+
+<div class="modal-backdrop" id="drilldownModal">
+    <div class="dashboard-modal" style="max-width:920px;">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+            <div>
+                <h3 id="drilldownTitle">Chart Drill-down</h3>
+                <div class="dashboard-modal-subtitle">Click a bar, point or data item to inspect the selected value.</div>
+            </div>
+            <button class="saved-mini-button" id="closeDrilldown">✕ Close</button>
+        </div>
+        <div class="drilldown-details" id="drilldownDetails">Select a data point.</div>
+        <div class="drilldown-modal-chart" id="drilldownChart"></div>
+    </div>
+</div>
+
+<div class="modal-backdrop" id="savedDashboardsModal">
+    <div class="dashboard-modal">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+            <div>
+                <h3>My Dashboards</h3>
+                <div class="dashboard-modal-subtitle">Your automatically saved DataLens dashboards.</div>
+            </div>
+            <button class="saved-mini-button" id="closeSavedDashboards">✕ Close</button>
+        </div>
+        <div class="saved-list" id="savedDashboardsList">
+            <div class="dashboard-modal-subtitle">Loading saved dashboards...</div>
+        </div>
+        <div class="modal-footer">
+            <button class="saved-mini-button" id="closeSavedDashboardsFooter">Close</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-backdrop" id="shareDashboardModal">
+    <div class="dashboard-modal">
+        <h3>Share Dashboard</h3>
+        <div class="dashboard-modal-subtitle">Anyone with this link can view the saved dashboard.</div>
+        <div class="share-box">
+            <strong>Share link</strong>
+            <input class="share-url" id="shareUrlInput" type="text" readonly>
+            <div class="modal-footer" style="margin-top:10px;">
+                <button class="saved-mini-button" id="copyShareLinkButton">Copy Link</button>
+                <button class="saved-mini-button" id="closeShareModal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+
+/* =========================================================
+   LOGGED-IN USER UI
+   Hide auth buttons from the dashboard navbar and show
+   the currently logged-in user's name instead.
+========================================================= */
+
+(function(){
+    const navbar = document.querySelector('.navbar');
+    const greeting = document.getElementById('userGreeting');
+    const welcomeName = document.getElementById('welcomeName');
+
+    if(!navbar || !greeting || !welcomeName){
+        return;
+    }
+
+    // Remove any old Login / Create Account controls that may still
+    // exist in an older copy of the dashboard HTML.
+    navbar.querySelectorAll('a, button').forEach(function(el){
+        if(el.id === 'themeToggle') return;
+
+        const label = (el.textContent || '').trim().toLowerCase();
+        if(label === 'login' || label === 'create account' || label.includes('login') && label.includes('account')){
+            el.remove();
+        }
+    });
+
+    fetch('/api/me', {
+        method: 'GET',
+        credentials: 'same-origin',
+        cache: 'no-store'
+    })
+    .then(function(response){
+        if(!response.ok) throw new Error('Not logged in');
+        return response.json();
+    })
+    .then(function(data){
+        const username = data && data.user ? (data.user.username || 'User') : 'User';
+        const normalized = String(username).trim().toLowerCase().replace(/[_\-]+/g,' ');
+        const displayName = ['arokiya', 'arokiya uma', 'arokiyauma'].includes(normalized)
+            ? 'Arokiya Uma'
+            : String(username).trim();
+
+        welcomeName.textContent = displayName || 'User';
+        greeting.style.display = 'flex';
+    })
+    .catch(function(){
+        // Keep the dashboard functional even if the user endpoint is unavailable.
+        greeting.style.display = 'flex';
+        welcomeName.textContent = 'User';
+    });
+})();
+
+</script>
+
+
+<script>
+
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+let selectedFile = null;
+
+let dashboardData = null;
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const fileInput =
+    document.getElementById(
+        "fileInput"
+    );
+
+const dropZone =
+    document.getElementById(
+        "dropZone"
+    );
+
+const selectedFileBox =
+    document.getElementById(
+        "selectedFile"
+    );
+
+const generateButton =
+    document.getElementById(
+        "generateButton"
+    );
+
+const loading =
+    document.getElementById(
+        "loading"
+    );
+
+const dashboardSection =
+    document.getElementById(
+        "dashboardSection"
+    );
+
+const uploadSection =
+    document.getElementById(
+        "uploadSection"
+    );
+
+const homeSection =
+    document.getElementById(
+        "homeSection"
+    );
+
+const previewSection =
+    document.getElementById(
+        "previewSection"
+    );
+
+const launchSystem =
+    document.getElementById(
+        "launchSystem"
+    );
+
+const toast =
+    document.getElementById(
+        "toast"
+    );
+
+
+/* =========================================================
+   FILE INPUT
+========================================================= */
+
+fileInput.addEventListener(
+    "change",
+    function(){
+
+        if(
+            this.files.length > 0
+        ){
+
+            selectFile(
+                this.files[0]
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   DRAG
+========================================================= */
+
+dropZone.addEventListener(
+    "dragover",
+    function(event){
+
+        event.preventDefault();
+
+        dropZone.classList.add(
+            "dragging"
+        );
+
+    }
+);
+
+
+dropZone.addEventListener(
+    "dragleave",
+    function(){
+
+        dropZone.classList.remove(
+            "dragging"
+        );
+
+    }
+);
+
+
+dropZone.addEventListener(
+    "drop",
+    function(event){
+
+        event.preventDefault();
+
+        dropZone.classList.remove(
+            "dragging"
+        );
+
+
+        if(
+            event.dataTransfer.files.length
+        ){
+
+            selectFile(
+                event.dataTransfer.files[0]
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   SELECT FILE
+========================================================= */
+
+function selectFile(file){
+
+    const allowed = [
+        "csv",
+        "xlsx",
+        "xls"
+    ];
+
+
+    const extension =
+        file.name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+
+    if(
+        !allowed.includes(
+            extension
+        )
+    ){
+
+        showToast(
+            "Please upload only CSV or Excel files."
+        );
+
+        return;
+
+    }
+
+
+    selectedFile =
+        file;
+
+
+    selectedFileBox.style.display =
+        "block";
+
+
+    selectedFileBox.textContent =
+
+        "✓ Selected: "
+        +
+        file.name
+        +
+        " • "
+        +
+        formatBytes(
+            file.size
+        );
+
+
+    generateButton.disabled =
+        false;
+
+}
+
+
+/* =========================================================
+   GENERATE DASHBOARD
+========================================================= */
+
+generateButton.addEventListener(
+    "click",
+    async function(){
+
+        if(
+            !selectedFile
+        ){
+
+            showToast(
+                "Please choose a dataset first."
+            );
+
+            return;
+
+        }
+
+
+        /*
+         =====================================================
+         STEP 1
+
+         HIDE EVERYTHING FIRST
+
+         The rocket does NOT exist on the normal page.
+         It is created visually only now.
+         =====================================================
+        */
+
+        launchSystem.style.display =
+            "block";
+
+
+        launchSystem.classList.remove(
+            "active"
+        );
+
+
+        /*
+         Force browser reflow so animation
+         starts from the beginning.
+        */
+
+        void launchSystem.offsetWidth;
+
+
+        /*
+         =====================================================
+         STEP 2
+
+         Start smoke + rocket animation.
+         =====================================================
+        */
+
+        launchSystem.classList.add(
+            "active"
+        );
+
+
+        /*
+         =====================================================
+         STEP 3
+
+         Upload file to Flask.
+         =====================================================
+        */
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            "file",
+            selectedFile
+        );
+
+
+        generateButton.disabled =
+            true;
+
+
+        loading.style.display =
+            "block";
+
+
+        try{
+
+
+            const response =
+                await fetch(
+                    "/upload",
+                    {
+                        method:"POST",
+                        body:formData
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if(
+                !response.ok
+                ||
+                !data.success
+            ){
+
+                throw new Error(
+                    data.error
+                    ||
+                    "Unable to analyze dataset."
+                );
+
+            }
+
+
+            dashboardData =
+                data;
+
+
+            /*
+             =================================================
+             IMPORTANT
+
+             Keep the rocket animation visible for
+             the complete launch.
+
+             This gives the user the feeling that
+             DataLens is launching the analytics engine.
+             =================================================
+            */
+
+            await wait(
+                2500
+            );
+
+
+            /*
+             =================================================
+             Render dashboard AFTER launch.
+             =================================================
+            */
+
+            renderDashboard(
+                data
+            );
+
+
+            /*
+             Small additional pause.
+            */
+
+            await wait(
+                300
+            );
+
+
+            createConfetti();
+
+
+            /*
+             =================================================
+             Hide old landing page.
+             =================================================
+            */
+
+            uploadSection.style.display =
+                "none";
+
+
+            homeSection.style.display =
+                "none";
+
+
+            /*
+             =================================================
+             Show dashboard.
+             =================================================
+            */
+
+            dashboardSection.style.display =
+                "block";
+
+
+            window.scrollTo(
+                {
+                    top:0,
+                    behavior:"smooth"
+                }
+            );
+
+
+            /*
+             =================================================
+             Remove launch system after animation.
+             =================================================
+            */
+
+            setTimeout(
+                function(){
+
+                    launchSystem.classList.remove(
+                        "active"
+                    );
+
+                    launchSystem.style.display =
+                        "none";
+
+                },
+                500
+            );
+
+
+        }
+        catch(error){
+
+            showToast(
+                error.message
+            );
+
+
+            launchSystem.classList.remove(
+                "active"
+            );
+
+
+            launchSystem.style.display =
+                "none";
+
+        }
+        finally{
+
+            generateButton.disabled =
+                false;
+
+            loading.style.display =
+                "none";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   WAIT
+========================================================= */
+
+function wait(ms){
+
+    return new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                ms
+            )
+    );
+
+}
+
+
+/* =========================================================
+   NEW DATASET
+========================================================= */
+
+document
+    .getElementById(
+        "newDatasetButton"
+    )
+    .addEventListener(
+        "click",
+        function(){
+
+            selectedFile =
+                null;
+
+            dashboardData =
+                null;
+
+            fileInput.value =
+                "";
+
+            selectedFileBox.style.display =
+                "none";
+
+            generateButton.disabled =
+                true;
+
+            dashboardSection.style.display =
+                "none";
+
+            uploadSection.style.display =
+                "block";
+
+            homeSection.style.display =
+                "block";
+
+            launchSystem.classList.remove(
+                "active"
+            );
+
+            launchSystem.style.display =
+                "none";
+
+            window.scrollTo(
+                {
+                    top:0,
+                    behavior:"smooth"
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   PREVIEW
+========================================================= */
+
+document
+    .getElementById(
+        "previewButton"
+    )
+    .addEventListener(
+        "click",
+        function(){
+
+            previewSection.scrollIntoView(
+                {
+                    behavior:"smooth",
+                    block:"start"
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   RENDER DASHBOARD
+========================================================= */
+
+function renderDashboard(data){
+
+    const analysis =
+        data.analysis || {};
+
+
+    document.getElementById(
+        "datasetInfo"
+    ).textContent =
+
+        `${data.filename}
+        • ${analysis.rows || 0} rows
+        • ${analysis.columns || 0} columns`;
+
+
+    renderKPIs(
+        data.kpis || []
+    );
+
+
+    renderCharts(
+        data.charts || []
+    );
+
+
+    renderPreview(
+        data.preview || [],
+        data.columns || []
+    );
+
+}
+
+
+/* =========================================================
+   KPI
+========================================================= */
+
+function renderKPIs(kpis){
+
+    const grid =
+        document.getElementById(
+            "kpiGrid"
+        );
+
+
+    grid.innerHTML =
+        "";
+
+
+    const colors = [
+
+        ["#eef2ff","#4f46e5","▥"],
+        ["#ecfeff","#0891b2","▤"],
+        ["#fef3c7","#d97706","◉"],
+        ["#fce7f3","#db2777","▣"],
+        ["#ecfdf5","#059669","♙"],
+        ["#f3e8ff","#9333ea","⌁"],
+        ["#fff7ed","#ea580c","◷"],
+        ["#eff6ff","#2563eb","⟳"]
+
+    ];
+
+
+    kpis.forEach(
+        (kpi,index)=>{
+
+            const color =
+                colors[
+                    index %
+                    colors.length
+                ];
+
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "kpi-card";
+
+
+            card.style.animationDelay =
+                `${index*.05}s`;
+
+
+            card.innerHTML = `
+
+                <div
+                    class="kpi-icon"
+                    style="
+                        background:${color[0]};
+                        color:${color[1]}
+                    "
+                >
+
+                    ${color[2]}
+
+                </div>
+
+
+                <div class="kpi-label">
+
+                    ${escapeHTML(
+                        kpi.title
+                    )}
+
+                </div>
+
+
+                <div class="kpi-value">
+
+                    ${escapeHTML(
+                        kpi.value
+                    )}
+
+                </div>
+
+            `;
+
+
+            grid.appendChild(
+                card
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   CHARTS
+========================================================= */
+
+function renderCharts(charts){
+
+    const grid =
+        document.getElementById(
+            "chartsGrid"
+        );
+
+
+    grid.innerHTML =
+        "";
+
+
+    charts.forEach(
+        (chart,index)=>{
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "chart-card";
+
+
+            card.style.animationDelay =
+                `${index*.06}s`;
+
+
+            const title =
+                document.createElement(
+                    "h3"
+                );
+
+
+            title.innerHTML = `
+
+                ${escapeHTML(
+                    chart.title ||
+                    "Data Insight"
+                )}
+
+                <span class="chart-type">
+
+                    ${escapeHTML(
+                        (
+                            chart.type ||
+                            "chart"
+                        ).toUpperCase()
+                    )}
+
+                </span>
+
+            `;
+
+
+            const chartElement =
+                document.createElement(
+                    "div"
+                );
+
+
+            chartElement.className =
+                "chart";
+
+
+            chartElement.id =
+                "chart-" + index;
+
+
+            card.appendChild(
+                title
+            );
+
+
+            card.appendChild(
+                chartElement
+            );
+
+
+            grid.appendChild(
+                card
+            );
+
+
+            drawPlot(
+                chartElement.id,
+                chart
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   PLOTLY
+========================================================= */
+
+function drawPlot(
+    elementId,
+    chart
+){
+
+    let plotData = [];
+
+    let layout = {
+
+        margin:{
+            l:38,
+            r:10,
+            t:8,
+            b:45
+        },
+
+        paper_bgcolor:
+            "transparent",
+
+        plot_bgcolor:
+            "transparent",
+
+        font:{
+            family:
+                "Segoe UI, Arial",
+
+            size:10,
+
+            color:
+                "#64748b"
+        },
+
+        showlegend:false,
+
+        responsive:true
+
+    };
+
+
+    if(
+        chart.type ===
+        "bar"
+    ){
+
+        plotData = [{
+
+            x:
+                chart.labels || [],
+
+            y:
+                chart.values || [],
+
+            type:"bar",
+
+            marker:{
+                color:[
+                    "#2563eb",
+                    "#06b6d4",
+                    "#7c3aed",
+                    "#10b981",
+                    "#f97316",
+                    "#ec4899",
+                    "#eab308",
+                    "#6366f1",
+                    "#14b8a6",
+                    "#f43f5e"
+                ]
+            }
+
+        }];
+
+    }
+
+
+    else if(
+        chart.type ===
+        "line"
+    ){
+
+        plotData = [{
+
+            x:
+                chart.x || [],
+
+            y:
+                chart.y || [],
+
+            type:"scatter",
+
+            mode:
+                "lines+markers",
+
+            line:{
+                color:"#2563eb",
+                width:3,
+                shape:"spline"
+            },
+
+            marker:{
+                color:"#06b6d4",
+                size:6
+            }
+
+        }];
+
+    }
+
+
+    else if(
+        chart.type ===
+        "histogram"
+    ){
+
+        plotData = [{
+
+            x:
+                chart.values || [],
+
+            type:"histogram",
+
+            marker:{
+                color:"#0ea5e9",
+                opacity:.82
+            }
+
+        }];
+
+    }
+
+
+    else if(
+        chart.type ===
+        "scatter"
+    ){
+
+        plotData = [{
+
+            x:
+                chart.x || [],
+
+            y:
+                chart.y || [],
+
+            type:"scatter",
+
+            mode:"markers",
+
+            marker:{
+                color:"#0284c7",
+                size:8,
+                opacity:.7
+            }
+
+        }];
+
+    }
+
+
+    layout.xaxis = {
+        automargin:true,
+        gridcolor:"#e2e8f0"
+    };
+
+
+    layout.yaxis = {
+        automargin:true,
+        gridcolor:"#e2e8f0"
+    };
+
+
+    Plotly.newPlot(
+
+        elementId,
+
+        plotData,
+
+        layout,
+
+        {
+            responsive:true,
+            displayModeBar:false
+        }
+
+    );
+
+}
+
+
+/* =========================================================
+   PREVIEW
+========================================================= */
+
+function renderPreview(
+    rows,
+    columns
+){
+
+    const tableHead =
+        document.getElementById(
+            "tableHead"
+        );
+
+
+    const tableBody =
+        document.getElementById(
+            "tableBody"
+        );
+
+
+    tableHead.innerHTML =
+        "";
+
+    tableBody.innerHTML =
+        "";
+
+
+    const headerRow =
+        document.createElement(
+            "tr"
+        );
+
+
+    columns.forEach(
+        column=>{
+
+            const th =
+                document.createElement(
+                    "th"
+                );
+
+            th.textContent =
+                column;
+
+            headerRow.appendChild(
+                th
+            );
+
+        }
+    );
+
+
+    tableHead.appendChild(
+        headerRow
+    );
+
+
+    rows.forEach(
+        row=>{
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+
+            columns.forEach(
+                column=>{
+
+                    const td =
+                        document.createElement(
+                            "td"
+                        );
+
+
+                    td.textContent =
+
+                        row[column]
+                        === null
+                        ||
+                        row[column]
+                        === undefined
+
+                        ? ""
+
+                        : row[column];
+
+
+                    tr.appendChild(
+                        td
+                    );
+
+                }
+            );
+
+
+            tableBody.appendChild(
+                tr
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FILE SIZE
+========================================================= */
+
+function formatBytes(bytes){
+
+    if(
+        bytes === 0
+    ){
+
+        return "0 Bytes";
+
+    }
+
+
+    const units = [
+        "Bytes",
+        "KB",
+        "MB",
+        "GB"
+    ];
+
+
+    const index =
+        Math.floor(
+            Math.log(bytes)
+            /
+            Math.log(1024)
+        );
+
+
+    return (
+
+        parseFloat(
+
+            (
+                bytes /
+                Math.pow(
+                    1024,
+                    index
+                )
+            ).toFixed(2)
+
+        )
+
+        +
+        " "
+        +
+        units[index]
+
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(value){
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(message){
+
+    toast.textContent =
+        message;
+
+
+    toast.style.display =
+        "block";
+
+
+    setTimeout(
+        function(){
+
+            toast.style.display =
+                "none";
+
+        },
+        3500
+    );
+
+}
+
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+function createConfetti(){
+
+    const colors = [
+
+        "#2563eb",
+        "#7c3aed",
+        "#06b6d4",
+        "#10b981",
+        "#f97316",
+        "#ec4899",
+        "#eab308"
+
+    ];
+
+
+    for(
+        let i=0;
+        i<80;
+        i++
+    ){
+
+        const piece =
+            document.createElement(
+                "div"
+            );
+
+
+        piece.className =
+            "confetti";
+
+
+        piece.style.left =
+            Math.random()*100
+            +
+            "vw";
+
+
+        piece.style.background =
+            colors[
+                Math.floor(
+                    Math.random()
+                    *
+                    colors.length
+                )
+            ];
+
+
+        piece.style.animationDelay =
+            Math.random()*.8
+            +
+            "s";
+
+
+        document.body.appendChild(
+            piece
+        );
+
+
+        setTimeout(
+            ()=>{
+                piece.remove();
+            },
+            3500
+        );
+
+    }
+
+}
+
+/* =========================================================
+   THEME TOGGLE
+========================================================= */
+(function(){
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if(!toggle) return;
+
+    const savedTheme = localStorage.getItem("datalens-theme");
+    const initialTheme = savedTheme ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+
+    function applyTheme(theme){
+        root.setAttribute("data-theme", theme);
+        const dark = theme === "dark";
+        toggle.textContent = dark ? "☀" : "☾";
+        toggle.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+        toggle.setAttribute("title", dark ? "Switch to light mode" : "Switch to dark mode");
+    }
+
+    applyTheme(initialTheme);
+
+    toggle.addEventListener("click", function(){
+        const nextTheme = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        localStorage.setItem("datalens-theme", nextTheme);
+        applyTheme(nextTheme);
+    });
+})();
+
+</script>
+
+<script>
+/* =========================================================
+   SAVE / AUTO-SAVE / DOWNLOAD / SHARE / MY DASHBOARDS
+========================================================= */
+let currentDashboardId = null;
+const autoSaveStatus = document.getElementById('autoSaveStatus');
+const saveDashboardButton = document.getElementById('saveDashboardButton');
+const downloadDashboardButton = document.getElementById('downloadDashboardButton');
+const shareDashboardButton = document.getElementById('shareDashboardButton');
+const myDashboardsButton = document.getElementById('myDashboardsButton');
+const savedDashboardsModal = document.getElementById('savedDashboardsModal');
+const shareDashboardModal = document.getElementById('shareDashboardModal');
+const savedDashboardsList = document.getElementById('savedDashboardsList');
+const shareUrlInput = document.getElementById('shareUrlInput');
+
+function setSaveStatus(text, show=true){
+    if(!autoSaveStatus) return;
+    autoSaveStatus.style.display = show ? 'inline-flex' : 'none';
+    const label = autoSaveStatus.querySelector('.auto-save-label');
+    if(label) label.textContent = text || 'Auto-saved';
+}
+
+function dashboardTitleFromData(data){
+    const filename = data && data.filename ? data.filename : 'Dashboard';
+    return filename.replace(/\.[^/.]+$/, '') || 'Dashboard';
+}
+
+async function persistDashboard(autoSave=false){
+    if(!dashboardData) throw new Error('Generate a dashboard first.');
+    const response = await fetch('/api/dashboards', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        credentials:'same-origin',
+        body:JSON.stringify({
+            id:currentDashboardId,
+            name:dashboardTitleFromData(dashboardData),
+            data:dashboardData
+        })
+    });
+    const result = await response.json();
+    if(!response.ok || !result.success) throw new Error(result.message || 'Unable to save dashboard.');
+    currentDashboardId = result.id;
+    setSaveStatus(autoSave ? 'Auto-saved' : 'Saved');
+    return result;
+}
+
+async function autoSaveDashboard(){
+    try{
+        await persistDashboard(true);
+    }catch(error){
+        console.error('AUTO SAVE ERROR:', error);
+        showToast('Dashboard generated, but auto-save failed.');
+    }
+}
+
+if(saveDashboardButton){
+    saveDashboardButton.addEventListener('click', async function(){
+        try{
+            await persistDashboard(false);
+            showToast('Dashboard saved successfully.');
+        }catch(error){ showToast(error.message); }
+    });
+}
+
+if(downloadDashboardButton){
+    downloadDashboardButton.addEventListener('click', async function(){
+        try{
+            if(!currentDashboardId) await persistDashboard(true);
+            if(currentDashboardId) window.location.href = '/download-dashboard/' + currentDashboardId;
+        }catch(error){ showToast(error.message); }
+    });
+}
+
+async function createShareLink(idOverride=null){
+    if(idOverride) currentDashboardId = idOverride;
+    if(!currentDashboardId) await persistDashboard(true);
+    if(!currentDashboardId) return;
+
+    const response = await fetch('/api/dashboards/' + currentDashboardId + '/share', {
+        method:'POST', credentials:'same-origin'
+    });
+    const result = await response.json();
+    if(!response.ok || !result.success) throw new Error(result.message || 'Unable to create share link.');
+    shareUrlInput.value = result.share_url;
+    shareDashboardModal.classList.add('open');
+}
+
+if(shareDashboardButton){
+    shareDashboardButton.addEventListener('click', async function(){
+        try{ await createShareLink(); }
+        catch(error){ showToast(error.message); }
+    });
+}
+
+async function loadSavedDashboards(){
+    savedDashboardsList.innerHTML = '<div class="dashboard-modal-subtitle">Loading...</div>';
+    try{
+        const response = await fetch('/api/dashboards', {credentials:'same-origin',cache:'no-store'});
+        const result = await response.json();
+        if(!response.ok || !result.success) throw new Error(result.message || 'Unable to load dashboards.');
+        const list = result.dashboards || [];
+        if(!list.length){
+            savedDashboardsList.innerHTML = '<div class="dashboard-modal-subtitle">No saved dashboards yet.</div>';
+            return;
+        }
+        savedDashboardsList.innerHTML = '';
+        list.forEach(function(item){
+            const row = document.createElement('div');
+            row.className = 'saved-item';
+            const main = document.createElement('div');
+            main.className = 'saved-item-main';
+            const name = document.createElement('div');
+            name.className = 'saved-item-name';
+            name.textContent = item.name;
+            const meta = document.createElement('div');
+            meta.className = 'saved-item-meta';
+            meta.textContent = (item.filename || 'Dashboard') + ' • Updated ' + (item.updated_at || '');
+            main.appendChild(name); main.appendChild(meta);
+            const actions = document.createElement('div');
+            actions.className = 'saved-item-actions';
+
+            const makeButton = (label, cls, fn) => {
+                const b = document.createElement('button');
+                b.className = 'saved-mini-button' + (cls ? ' ' + cls : '');
+                b.textContent = label;
+                b.addEventListener('click', fn);
+                return b;
+            };
+
+            actions.appendChild(makeButton('Open','',()=>openSavedDashboard(item.id)));
+            actions.appendChild(makeButton('Download','',()=>{window.location.href='/download-dashboard/'+item.id;}));
+            actions.appendChild(makeButton('Share','',async()=>{try{await createShareLink(item.id)}catch(e){showToast(e.message)}}));
+            actions.appendChild(makeButton('Delete','delete',()=>deleteSavedDashboard(item.id)));
+            row.appendChild(main); row.appendChild(actions); savedDashboardsList.appendChild(row);
+        });
+    }catch(error){
+        savedDashboardsList.innerHTML = '<div class="dashboard-modal-subtitle">' + escapeHTML(error.message) + '</div>';
+    }
+}
+
+async function openSavedDashboard(id){
+    try{
+        const response = await fetch('/api/dashboards/' + id, {credentials:'same-origin',cache:'no-store'});
+        const result = await response.json();
+        if(!response.ok || !result.success) throw new Error(result.message || 'Unable to open dashboard.');
+        currentDashboardId = result.id;
+        dashboardData = result.data;
+        renderDashboard(dashboardData);
+        const uploadSection=document.getElementById('uploadSection');
+        const homeSection=document.getElementById('homeSection');
+        const dashboardSection=document.getElementById('dashboardSection');
+        if(uploadSection) uploadSection.style.display='none';
+        if(homeSection) homeSection.style.display='none';
+        if(dashboardSection) dashboardSection.style.display='block';
+        savedDashboardsModal.classList.remove('open');
+        setSaveStatus('Saved dashboard opened');
+        window.scrollTo({top:0,behavior:'smooth'});
+    }catch(error){ showToast(error.message); }
+}
+
+async function deleteSavedDashboard(id){
+    if(!confirm('Delete this saved dashboard?')) return;
+    try{
+        const response = await fetch('/api/dashboards/' + id, {method:'DELETE',credentials:'same-origin'});
+        const result = await response.json();
+        if(!response.ok || !result.success) throw new Error(result.message || 'Unable to delete dashboard.');
+        if(currentDashboardId === id){currentDashboardId=null;setSaveStatus('',false);}
+        await loadSavedDashboards();
+        showToast('Dashboard deleted.');
+    }catch(error){ showToast(error.message); }
+}
+
+if(myDashboardsButton){
+    myDashboardsButton.addEventListener('click', async function(){
+        savedDashboardsModal.classList.add('open');
+        await loadSavedDashboards();
+    });
+}
+
+document.getElementById('closeSavedDashboards').addEventListener('click',()=>savedDashboardsModal.classList.remove('open'));
+document.getElementById('closeSavedDashboardsFooter').addEventListener('click',()=>savedDashboardsModal.classList.remove('open'));
+document.getElementById('closeShareModal').addEventListener('click',()=>shareDashboardModal.classList.remove('open'));
+document.getElementById('copyShareLinkButton').addEventListener('click',async function(){
+    try{await navigator.clipboard.writeText(shareUrlInput.value)}catch(e){shareUrlInput.select();document.execCommand('copy')}
+    showToast('Share link copied.');
+});
+savedDashboardsModal.addEventListener('click',e=>{if(e.target===savedDashboardsModal)savedDashboardsModal.classList.remove('open')});
+shareDashboardModal.addEventListener('click',e=>{if(e.target===shareDashboardModal)shareDashboardModal.classList.remove('open')});
+
+// Watch the existing generation flow and auto-save once it finishes rendering.
+const generationButtonForSave = document.getElementById('generateButton');
+if(generationButtonForSave){
+    generationButtonForSave.addEventListener('click',function(){
+        let tries=0;
+        const timer=setInterval(function(){
+            tries++;
+            if(dashboardData && document.getElementById('dashboardSection')?.style.display === 'block'){
+                clearInterval(timer);
+                autoSaveDashboard();
+            }
+            if(tries>40) clearInterval(timer);
+        },250);
+    });
+}
+
+const newDatasetButtonForSave = document.getElementById('newDatasetButton');
+if(newDatasetButtonForSave){
+    newDatasetButtonForSave.addEventListener('click',function(){
+        currentDashboardId=null;
+        originalDashboardData=null;
+        setSaveStatus('',false);
+    });
+}
+</script>
+
+
+<script>
+/* =========================================================
+   ALL-IN-ONE FEATURES
+   Smart Filters • Chart Drill-down • AI Insights
+   PDF Export • Custom Layouts • Public Share Links
+========================================================= */
+
+let originalDashboardData = null;
+const smartFiltersGrid = document.getElementById('smartFiltersGrid');
+const resetSmartFilters = document.getElementById('resetSmartFilters');
+const filterCount = document.getElementById('filterCount');
+const insightsList = document.getElementById('insightsList');
+const layoutSelector = document.getElementById('layoutSelector');
+const pdfDashboardButton = document.getElementById('pdfDashboardButton');
+const drilldownModal = document.getElementById('drilldownModal');
+const closeDrilldown = document.getElementById('closeDrilldown');
+const drilldownTitle = document.getElementById('drilldownTitle');
+const drilldownDetails = document.getElementById('drilldownDetails');
+const drilldownChart = document.getElementById('drilldownChart');
+
+function cloneData(obj){
+    try{return JSON.parse(JSON.stringify(obj));}catch(e){return obj;}
+}
+
+function currentSourceData(){
+    return originalDashboardData || dashboardData || null;
+}
+
+function applyLayout(mode){
+    const section = document.getElementById('dashboardSection');
+    if(!section) return;
+    section.classList.remove('layout-compact','layout-wide','layout-focus');
+    if(mode && mode !== 'standard') section.classList.add('layout-' + mode);
+    if(layoutSelector) layoutSelector.value = mode || 'standard';
+    if(dashboardData){
+        dashboardData.layout_mode = mode || 'standard';
+    }
+    localStorage.setItem('datalens-layout', mode || 'standard');
+}
+
+function renderSmartFilters(){
+    if(!smartFiltersGrid) return;
+    smartFiltersGrid.innerHTML = '';
+    const source = currentSourceData();
+    if(!source || !source.records || !source.records.length){
+        smartFiltersGrid.innerHTML = '<div class="smart-filter-subtitle">Smart Filters become available after a new dashboard is auto-saved with source rows.</div>';
+        if(filterCount) filterCount.textContent = '';
+        return;
+    }
+
+    const analysis = source.analysis || {};
+    const records = source.records || [];
+    const categorical = (analysis.categorical_columns || []).slice(0,8);
+    const dates = (analysis.date_columns || []).slice(0,4);
+    const numeric = (analysis.numeric_columns || []).slice(0,4);
+    const active = (dashboardData && dashboardData.active_filters) || {};
+    const activeCat = active.categorical || {};
+    const activeRanges = active.numeric_ranges || {};
+    let count = 0;
+
+    [...categorical, ...dates].forEach(function(col){
+        if(count >= 6) return;
+        const values = [...new Set(records.map(r => {
+            const v = r[col];
+            return v === null || v === undefined || v === '' ? 'Missing' : String(v);
+        }))].sort(function(a,b){return a.localeCompare(b,undefined,{numeric:true});});
+        if(values.length === 0 || values.length > 30) return;
+        const group = document.createElement('div');
+        group.className = 'smart-filter-group';
+        const label = document.createElement('label');
+        label.textContent = col;
+        const select = document.createElement('select');
+        select.dataset.filterColumn = col;
+        const all = document.createElement('option'); all.value=''; all.textContent='All'; select.appendChild(all);
+        values.forEach(function(value){
+            const opt=document.createElement('option'); opt.value=value; opt.textContent=value;
+            select.appendChild(opt);
+        });
+        if(activeCat[col] !== undefined) select.value = String(activeCat[col]);
+        group.appendChild(label); group.appendChild(select); smartFiltersGrid.appendChild(group); count++;
+    });
+
+    numeric.forEach(function(col){
+        if(count >= 10) return;
+        const vals = records.map(r => Number(r[col])).filter(Number.isFinite);
+        if(!vals.length) return;
+        const min=Math.min(...vals), max=Math.max(...vals);
+        const group=document.createElement('div'); group.className='smart-filter-group';
+        const label=document.createElement('label'); label.textContent=col+' range';
+        const row=document.createElement('div'); row.className='smart-range-row';
+        const low=document.createElement('input'); low.type='number'; low.step='any'; low.placeholder='Min'; low.dataset.numericColumn=col; low.dataset.bound='min'; low.min=min; low.max=max;
+        const high=document.createElement('input'); high.type='number'; high.step='any'; high.placeholder='Max'; high.dataset.numericColumn=col; high.dataset.bound='max'; high.min=min; high.max=max;
+        low.value = activeRanges[col] && activeRanges[col][0] !== null && activeRanges[col][0] !== '' ? activeRanges[col][0] : '';
+        high.value = activeRanges[col] && activeRanges[col][1] !== null && activeRanges[col][1] !== '' ? activeRanges[col][1] : '';
+        row.appendChild(low); row.appendChild(high); group.appendChild(label); group.appendChild(row); smartFiltersGrid.appendChild(group); count++;
+    });
+
+    if(!count){
+        smartFiltersGrid.innerHTML='<div class="smart-filter-subtitle">No low-cardinality filter fields were detected for this dataset.</div>';
+    }
+
+    smartFiltersGrid.querySelectorAll('select,input').forEach(function(el){
+        el.addEventListener('change', applySmartFilters);
+    });
+    smartFiltersGrid.querySelectorAll('input').forEach(function(el){
+        el.addEventListener('keydown', function(e){ if(e.key === 'Enter') applySmartFilters(); });
+    });
+
+    const total = source.records.length || 0;
+    const shown = dashboardData && dashboardData.analysis ? (dashboardData.analysis.rows || total) : total;
+    if(filterCount) filterCount.textContent = shown.toLocaleString() + ' of ' + total.toLocaleString() + ' interactive records shown';
+}
+
+function collectSmartFilters(){
+    const filters={};
+    const numeric_ranges={};
+    smartFiltersGrid.querySelectorAll('select[data-filter-column]').forEach(function(el){
+        if(el.value) filters[el.dataset.filterColumn]=el.value;
+    });
+    smartFiltersGrid.querySelectorAll('input[data-numeric-column]').forEach(function(el){
+        const col=el.dataset.numericColumn;
+        if(!numeric_ranges[col]) numeric_ranges[col]=[null,null];
+        numeric_ranges[col][el.dataset.bound === 'min' ? 0 : 1] = el.value;
+    });
+    Object.keys(numeric_ranges).forEach(function(col){
+        const r=numeric_ranges[col];
+        if((r[0]===null || r[0]==='') && (r[1]===null || r[1]==='')) delete numeric_ranges[col];
+    });
+    return {filters, numeric_ranges};
+}
+
+async function applySmartFilters(){
+    if(!currentDashboardId){
+        await persistDashboard(true);
+    }
+    if(!currentDashboardId) return;
+    const payload=collectSmartFilters();
+    try{
+        const response=await fetch('/api/dashboards/'+currentDashboardId+'/filter',{
+            method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',
+            body:JSON.stringify(payload)
+        });
+        const result=await response.json();
+        if(!response.ok || !result.success) throw new Error(result.message || 'Unable to apply filters.');
+        dashboardData.analysis=result.analysis;
+        dashboardData.kpis=result.kpis;
+        dashboardData.charts=result.charts;
+        dashboardData.preview=result.preview;
+        dashboardData.insights=result.insights || [];
+        dashboardData.active_filters=result.active_filters || payload;
+        renderKPIs(dashboardData.kpis);
+        renderCharts(dashboardData.charts);
+        renderPreview(dashboardData.preview, dashboardData.columns || []);
+        renderInsights(dashboardData.insights);
+        renderSmartFilters();
+        setSaveStatus('Filter view ready');
+        await persistDashboard(true);
+    }catch(error){
+        showToast(error.message);
+    }
+}
+
+function renderInsights(insights){
+    if(!insightsList) return;
+    insightsList.innerHTML='';
+    (insights || []).slice(0,6).forEach(function(item){
+        const div=document.createElement('div'); div.className='insight-item'; div.textContent=item.text || String(item);
+        insightsList.appendChild(div);
+    });
+    if(!insights || !insights.length) insightsList.innerHTML='<div class="insight-item">No additional insights were detected for this view.</div>';
+}
+
+/* Keep the original plotting implementation, then add drill-down behavior. */
+const baseDrawPlotForFeatures = window.drawPlot;
+window.drawPlot = function(elementId, chart){
+    if(typeof baseDrawPlotForFeatures === 'function') baseDrawPlotForFeatures(elementId, chart);
+    setTimeout(function(){
+        const el=document.getElementById(elementId);
+        if(!el || !el.on) return;
+        el.removeAllListeners && el.removeAllListeners('plotly_click');
+        el.on('plotly_click',function(event){
+            const point = event && event.points && event.points[0] ? event.points[0] : null;
+            openDrilldown(chart, point);
+        });
+    },80);
+};
+
+const baseRenderChartsForFeatures = window.renderCharts;
+window.renderCharts = function(charts){
+    const grid=document.getElementById('chartsGrid');
+    if(!grid) return;
+    grid.innerHTML='';
+    (charts || []).forEach(function(chart,index){
+        const card=document.createElement('div'); card.className='chart-card'; card.style.animationDelay=(index*.06)+'s';
+        const title=document.createElement('h3');
+        title.innerHTML = escapeHTML(chart.title || 'Data Insight') + ' <span class="chart-type">'+escapeHTML((chart.type||'chart').toUpperCase())+'</span>';
+        const drill=document.createElement('button'); drill.className='chart-drill-button'; drill.type='button'; drill.textContent='Drill down';
+        drill.addEventListener('click',function(){openDrilldown(chart,null);});
+        title.appendChild(drill);
+        const chartElement=document.createElement('div'); chartElement.className='chart'; chartElement.id='chart-'+index;
+        card.appendChild(title); card.appendChild(chartElement); grid.appendChild(card);
+        window.drawPlot(chartElement.id, chart);
+    });
+};
+
+function openDrilldown(chart, point){
+    if(!drilldownModal) return;
+    drilldownTitle.textContent=chart.title || 'Chart Drill-down';
+    if(point){
+        const x = point.x !== undefined ? point.x : (point.label !== undefined ? point.label : '');
+        const y = point.y !== undefined ? point.y : (point.value !== undefined ? point.value : '');
+        drilldownDetails.textContent='Selected: '+String(x)+' • Value: '+String(y);
+    }else{
+        drilldownDetails.textContent='Interactive detail view for '+String(chart.title || 'this chart')+'. Click a plotted item for its exact value.';
+    }
+    drilldownModal.classList.add('open');
+    setTimeout(function(){
+        const plot={};
+        if(chart.type==='bar') plot.data=[{x:chart.labels||[],y:chart.values||[],type:'bar'}];
+        else if(chart.type==='line') plot.data=[{x:chart.x||[],y:chart.y||[],type:'scatter',mode:'lines+markers',line:{width:4,shape:'spline'}}];
+        else if(chart.type==='scatter') plot.data=[{x:chart.x||[],y:chart.y||[],type:'scatter',mode:'markers',marker:{size:9}}];
+        else plot.data=[{x:chart.values||[],type:'histogram'}];
+        plot.layout={margin:{l:45,r:20,t:15,b:55},paper_bgcolor:'transparent',plot_bgcolor:'transparent',responsive:true,showlegend:false};
+        Plotly.newPlot(drilldownChart,plot.data,plot.layout,{responsive:true,displayModeBar:false});
+    },40);
+}
+
+/* Override dashboard rendering so all new panels stay in sync. */
+window.renderDashboard = function(data){
+    dashboardData=data || {};
+    if(!originalDashboardData || (data && data.filename && originalDashboardData.filename !== data.filename)){
+        originalDashboardData=cloneData(data || {});
+    }
+    const analysis=data.analysis||{};
+    const info=document.getElementById('datasetInfo');
+    if(info) info.textContent=`${data.filename||'Dataset'} • ${analysis.rows||0} rows • ${analysis.columns||0} columns`;
+    renderKPIs(data.kpis||[]);
+    window.renderCharts(data.charts||[]);
+    renderPreview(data.preview||[],data.columns||[]);
+    renderInsights(data.insights||[]);
+    renderSmartFilters();
+    applyLayout(data.layout_mode || localStorage.getItem('datalens-layout') || 'standard');
+};
+
+if(resetSmartFilters){
+    resetSmartFilters.addEventListener('click',async function(){
+        if(!currentDashboardId) return;
+        smartFiltersGrid.querySelectorAll('select').forEach(function(el){el.value='';});
+        smartFiltersGrid.querySelectorAll('input').forEach(function(el){el.value='';});
+        await applySmartFilters();
+    });
+}
+
+if(layoutSelector){
+    layoutSelector.addEventListener('change',async function(){
+        applyLayout(this.value);
+        try{ if(dashboardData) await persistDashboard(true); }catch(e){ console.error(e); }
+    });
+}
+
+if(pdfDashboardButton){
+    pdfDashboardButton.addEventListener('click',async function(){
+        try{
+            if(!currentDashboardId) await persistDashboard(true);
+            if(currentDashboardId) window.location.href='/download-dashboard-pdf/'+currentDashboardId;
+        }catch(error){showToast(error.message);}
+    });
+}
+
+if(closeDrilldown) closeDrilldown.addEventListener('click',function(){drilldownModal.classList.remove('open');});
+if(drilldownModal) drilldownModal.addEventListener('click',function(e){if(e.target===drilldownModal) drilldownModal.classList.remove('open');});
+
+/* When a saved dashboard is opened, establish it as the filter source. */
+const oldOpenSavedDashboardForFeatures = window.openSavedDashboard;
+if(typeof oldOpenSavedDashboardForFeatures === 'function'){
+    window.openSavedDashboard = async function(id){
+        await oldOpenSavedDashboardForFeatures(id);
+        try{
+            const response=await fetch('/api/dashboards/'+id,{credentials:'same-origin',cache:'no-store'});
+            const result=await response.json();
+            if(result.success){originalDashboardData=cloneData(result.data);dashboardData=result.data;renderSmartFilters();renderInsights(result.data.insights||[]);applyLayout(result.data.layout_mode||'standard');}
+        }catch(e){console.error(e);}
+    };
+}
+
+/* Make the automatic-save flow preserve the current layout and insights. */
+const previousAutoSaveDashboard = window.autoSaveDashboard;
+window.autoSaveDashboard = async function(){
+    if(dashboardData){
+        dashboardData.layout_mode = localStorage.getItem('datalens-layout') || dashboardData.layout_mode || 'standard';
+    }
+    if(typeof previousAutoSaveDashboard === 'function') return previousAutoSaveDashboard();
+};
+</script>
+
+</body>
+
+</html>
